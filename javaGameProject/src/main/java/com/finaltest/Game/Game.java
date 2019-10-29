@@ -70,7 +70,7 @@ public class Game extends Canvas implements Runnable {
 
 		screen = new Screen(WIDTH, HEIGHT, new SpriteSheet("/sprite_sheet.png"));
 		input = new InputHandler(this);
-		level=new Level("/levels/small_test_level.png");
+		level=new Level("/levels/water_test_level.png");
 		player=new Player(level, 0, 0, input);
 		level.addEntity(player);
 	}
@@ -153,7 +153,7 @@ public class Game extends Canvas implements Runnable {
 			}
 		
 		}
-		//Font.render("Hellow World!", screen, screen.xOffset+screen.width/2,screen.yOffset+screen.height/2, Colours.get(-1, -1, -1, 000));
+		Font.render("Hello World 2039", screen, 0, 0, Colours.get(-1, 250, 0, 200), 1);
 		level.renderEntities(screen);
 		
 		for (int y = 0; y < screen.height; y++) {
