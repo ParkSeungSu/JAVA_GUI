@@ -20,7 +20,7 @@ import com.finaltest.Game.level.Level;
 public class Game extends Canvas implements Runnable {
 
 	private static final long serialVersionUID = 1L;
-	public static final int WIDTH = 160;
+	public static final int WIDTH = 320;
 	public static final int HEIGHT = WIDTH / 12 * 9;
 	public static final int SCALE = 3;
 	public static final String NAME = "Game";
@@ -70,7 +70,7 @@ public class Game extends Canvas implements Runnable {
 
 		screen = new Screen(WIDTH, HEIGHT, new SpriteSheet("/sprite_sheet.png"));
 		input = new InputHandler(this);
-		level=new Level("/levels/water_test_level.png");
+		level=new Level("/levels/test_map.png");
 		player=new Player(level, 0, 0, input);
 		level.addEntity(player);
 	}
@@ -153,7 +153,7 @@ public class Game extends Canvas implements Runnable {
 			}
 		
 		}
-		Font.render("Hello World 2039", screen, 0, 0, Colours.get(-1, 250, 0, 200), 1);
+		Font.render("Alpa Beta 323252532", screen, 0, 0, Colours.get(-1, 250, 0, 200), 1);
 		level.renderEntities(screen);
 		
 		for (int y = 0; y < screen.height; y++) {
