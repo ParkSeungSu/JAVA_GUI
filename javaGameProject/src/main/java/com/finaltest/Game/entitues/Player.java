@@ -2,6 +2,7 @@ package com.finaltest.Game.entitues;
 
 import com.finaltest.Game.InputHandler;
 import com.finaltest.Game.gfx.Colours;
+import com.finaltest.Game.gfx.Font;
 import com.finaltest.Game.gfx.Screen;
 import com.finaltest.Game.level.Level;
 
@@ -12,15 +13,18 @@ public class Player extends Mob {
 	private int scale = 1;
 	protected boolean isSwimming = false;
 	private int tickCount=0;
+	private String username;
 	
-	public Player(Level level, int x, int y, InputHandler input) {
+	public Player(Level level, int x, int y, InputHandler input,String username) {
 		super(level, "Player", x, y, 1);
 		this.input = input;
+		this.username=username;
 	}
 
 	public void tick() {
 		int xa = 0;
 		int ya = 0;
+		if(input!=null) {
 		if (input.up.isPressed()) {
 			ya--;
 		}
@@ -46,7 +50,7 @@ public class Player extends Mob {
 			isSwimming = false;
 		}
 		tickCount++;
-
+		}
 	}
 
 	public void render(Screen screen) {
@@ -92,6 +96,9 @@ public class Player extends Mob {
 		screen.render(xOffset + modifier - (modifier * flipBottom), yOffset + modifier, (xTile + 1) + (yTile + 1) * 32,
 				colour, flipBottom, scale);
 		}
+		if(username!=null) {
+			Font.render(username, screen, xOffset-((username.length()-1)/2*8), yOffset-10, Colours.get(-1, -1, -1, 555), 1);
+		}
 	}
 
 	public boolean hasCollided(int xa, int ya) {
@@ -120,6 +127,10 @@ public class Player extends Mob {
 			}
 		}
 		return false;
+	}
+	public String getUsername() {
+		return this.username;
+		
 	}
 
 }
