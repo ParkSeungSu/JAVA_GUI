@@ -23,7 +23,7 @@ public abstract class Mob extends Entity{
 	public void move(int xa,int ya) {
 		if(xa!=0 && ya!=0) {
 			move(xa,0);
-			move(ya,0);
+			move(0,ya);
 			numState--;
 			return;
 		}
@@ -50,6 +50,30 @@ public abstract class Mob extends Entity{
 	}
 	public String getName() {
 		return name;
+	}
+
+	public int getNumState() {
+		return numState;
+	}
+
+	public boolean isMoving() {
+		return isMoving;
+	}
+
+	public int getMovingDir() {
+		return movingDir;
+	}
+
+	public void setNumState(int numState) {
+		this.numState = numState;
+	}
+
+	public void setMovingDir(int movingDir) {
+		this.movingDir = movingDir;
+	}
+
+	public void setMoving(boolean isMoving) {
+		this.isMoving = isMoving;
 	}
 
 }

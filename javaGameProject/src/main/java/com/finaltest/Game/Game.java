@@ -29,41 +29,32 @@ public class Game extends Canvas implements Runnable {
 	public static final int HEIGHT = WIDTH / 12 * 9;
 	public static final int SCALE = 3;
 	public static final String NAME = "Game";
-	private JFrame frame;
+	public static final Dimension DIMENSIONS=new Dimension(WIDTH * SCALE, HEIGHT * SCALE);
+	public JFrame frame;
 
+	private Thread thread;
+	
 	public boolean running = false;
 	public int tickCount = 0;
 
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	private int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 	private int[] colours = new int[6 * 6 * 6];
-
+	
+	public static Game game;
 	private Screen screen;
 	public InputHandler input;
+	public WindowHandler windowHandler;
 	public Level level;
 	public Player player;
 	
-	private GameClient socketClient;
-	private GameServer socketServer;
+	public GameClient socketClient;
+	public GameServer socketServer;
 	
-	public Game() {
-		setMinimumSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
-		setMaximumSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
-		setPreferredSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
-		frame = new JFrame(NAME);
-
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setLayout(new BorderLayout());
-
-		frame.add(this, BorderLayout.CENTER);
-		frame.pack();
-
-		frame.setResizable(false);
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
-	}
+	public boolean debug=true;
 
 	public void init() {
+		game=this;
 		int index = 0;
 		for (int r = 0; r < 6; r++) {
 			for (int g = 0; g < 6; g++) {
@@ -81,7 +72,7 @@ public class Game extends Canvas implements Runnable {
 		level=new Level("/levels/water_test_level.png");
 		player=new PlayerMP(level, 100,100, input,JOptionPane.showInputDialog(this,"Please enter a UserName"),null,-1);
 		level.addEntity(player);
-		Packet00Login loginPacket=new Packet00Login(player.getUsername());
+		Packet00Login loginPacket=new Packet00Login(player.getUsername(),player.x,player.y);
 		if(socketServer!=null) {
 			socketServer.addConnection((PlayerMP)player,loginPacket);
 		}
@@ -89,10 +80,10 @@ public class Game extends Canvas implements Runnable {
 		loginPacket.writeData(socketClient);
 	}
 
-	private synchronized void start() {
+	public synchronized void start() {
 		running = true;
-		new Thread(this).start();
-		
+		thread=new Thread(this,NAME+"_main");
+		thread.start();
 		if(JOptionPane.showConfirmDialog(this, "Do you want to run the server?")==0) {
 			socketServer=new GameServer(this);
 			socketServer.start();
@@ -103,10 +94,14 @@ public class Game extends Canvas implements Runnable {
 
 	}
 
-	private synchronized void stop() {
+	public synchronized void stop() {
 
 		running = false;
-
+		try {
+			thread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void run() {
@@ -143,7 +138,7 @@ public class Game extends Canvas implements Runnable {
 			}
 			if (System.currentTimeMillis() - lastTimer > 1000) {
 				lastTimer += 1000;
-				frame.setTitle(ticks + "Ticks" + frames + " frames");
+				debug(DebugLevel.INFO,ticks + "Ticks" + frames + " frames");
 				frames = 0;
 				ticks = 0;
 			}
@@ -175,7 +170,7 @@ public class Game extends Canvas implements Runnable {
 			}
 		
 		}
-		Font.render("Alpa Beta 323252532", screen, 0, 0, Colours.get(-1, 250, 0, 200), 1);
+		Font.render("Hello", screen, 0, 0, Colours.get(-1, 250, 0, 200), 1);
 		level.renderEntities(screen);
 		
 		for (int y = 0; y < screen.height; y++) {
@@ -191,9 +186,34 @@ public class Game extends Canvas implements Runnable {
 		g.dispose();
 		bs.show();
 	}
-
-	public static void main(String[] args) {
-		new Game().start();
+	public static long fact(int n) {
+		if(n<=1) {
+			return 1;
+		}else {
+			return n*fact(n-1);
+		}
 	}
-
+	
+	public void debug(DebugLevel level,String msg) {
+		switch(level) {
+		default:
+		case INFO:
+			if(debug) {
+				System.out.println("["+NAME+"]"+msg);
+			}
+			break;
+		case WARNING:
+			System.out.println("["+NAME+"][WARNING]"+msg);
+			break;
+		case SEVERE:
+			System.out.println("["+NAME+"][SEVERE]"+msg);
+			this.stop();
+			break;
+		}
+	}
+	
+	public static enum DebugLevel{
+		INFO,WARNING,SEVERE;
+	}
+	
 }
