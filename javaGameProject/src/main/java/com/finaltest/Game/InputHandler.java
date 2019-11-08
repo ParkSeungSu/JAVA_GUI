@@ -1,7 +1,6 @@
 package com.finaltest.Game;
 
-import java.util.ArrayList;
-import java.util.List;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 

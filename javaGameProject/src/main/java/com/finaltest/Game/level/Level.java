@@ -84,15 +84,17 @@ public class Level {
 			}
 		}
 	}
-	public synchronized List<Entity> getEntities(){
+
+	public synchronized List<Entity> getEntities() {
 		return this.entities;
 	}
+
 	public void tick() {
-		
-			for (Entity e : getEntities()) {
-				e.tick();
-			}
-		
+
+		for (Entity e : getEntities()) {
+			e.tick();
+		}
+
 		for (Tile t : Tile.tiles) {
 			if (t == null) {
 				break;
@@ -133,12 +135,12 @@ public class Level {
 		return Tile.tiles[tiles[x + y * width]];
 	}
 
-	public void addEntity(Entity entity) {
+	public synchronized void addEntity(Entity entity) {
 		this.getEntities().add(entity);
 
 	}
 
-	public void removePlayerMP(String username) {
+	public synchronized void removePlayerMP(String username) {
 		int index = 0;
 		for (Entity e : getEntities()) {
 			if (e instanceof PlayerMP && ((PlayerMP) e).getUsername().equals(username)) {
@@ -160,11 +162,11 @@ public class Level {
 		return index;
 	}
 
-	public void movePlayer(String username, int x, int y,int numState,boolean isMoving,int movingDir) {
-		int index = getPlayerMPindex(username);
-		PlayerMP player=(PlayerMP)this.getEntities().get(index);
-		player.x=x;
-		player.y=y;
+	public synchronized void movePlayer(String username, int x, int y, int numState, boolean isMoving, int movingDir) {
+		int index = this.getPlayerMPindex(username);
+		PlayerMP player = (PlayerMP) this.getEntities().get(index);
+		player.x = x;
+		player.y = y;
 		player.setNumState(numState);
 		player.setMovingDir(movingDir);
 		player.setMoving(isMoving);

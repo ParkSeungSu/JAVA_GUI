@@ -10,6 +10,7 @@ import javax.swing.JFrame;
 public class GameLauncher extends Applet{
 	
 	private static Game game=new Game();
+	public static final boolean DEBUG=false;
 	
 	@Override
 	public void init() {
@@ -18,6 +19,8 @@ public class GameLauncher extends Applet{
 		setMaximumSize(Game.DIMENSIONS);
 		setMinimumSize(Game.DIMENSIONS);
 		setPreferredSize(Game.DIMENSIONS);
+		game.debug=DEBUG;
+		game.isAppelet=true;
 	}
 
 	@Override
@@ -36,6 +39,7 @@ public class GameLauncher extends Applet{
 		game.setMinimumSize(Game.DIMENSIONS);
 		game.setMaximumSize(Game.DIMENSIONS);
 		game.setPreferredSize(Game.DIMENSIONS);
+		
 		game.frame = new JFrame(Game.NAME);
 
 		game.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -47,7 +51,10 @@ public class GameLauncher extends Applet{
 		game.frame.setResizable(false);
 		game.frame.setLocationRelativeTo(null);
 		game.frame.setVisible(true);
+		
 		game.windowHandler=new WindowHandler(game);
+		game.debug=DEBUG;
+		
 		game.start();
 	}
 }

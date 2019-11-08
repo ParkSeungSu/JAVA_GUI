@@ -1,6 +1,5 @@
 package com.finaltest.Game;
 
-import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -25,36 +24,37 @@ import com.finaltest.Game.net.packets.Packet00Login;
 public class Game extends Canvas implements Runnable {
 
 	private static final long serialVersionUID = 1L;
-	public static final int WIDTH = 180;
+	public static final int WIDTH = 160;
 	public static final int HEIGHT = WIDTH / 12 * 9;
 	public static final int SCALE = 3;
 	public static final String NAME = "Game";
-	public static final Dimension DIMENSIONS=new Dimension(WIDTH * SCALE, HEIGHT * SCALE);
+	public static final Dimension DIMENSIONS = new Dimension(WIDTH * SCALE, HEIGHT * SCALE);
 	public JFrame frame;
-
+	public static Game game;
 	private Thread thread;
-	
+
 	public boolean running = false;
 	public int tickCount = 0;
 
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	private int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 	private int[] colours = new int[6 * 6 * 6];
+
 	
-	public static Game game;
 	private Screen screen;
 	public InputHandler input;
 	public WindowHandler windowHandler;
 	public Level level;
 	public Player player;
-	
+
 	public GameClient socketClient;
 	public GameServer socketServer;
-	
-	public boolean debug=true;
+
+	public boolean debug = true;
+	public boolean isAppelet = false;
 
 	public void init() {
-		game=this;
+		game = this;
 		int index = 0;
 		for (int r = 0; r < 6; r++) {
 			for (int g = 0; g < 6; g++) {
@@ -69,28 +69,33 @@ public class Game extends Canvas implements Runnable {
 
 		screen = new Screen(WIDTH, HEIGHT, new SpriteSheet("/sprite_sheet.png"));
 		input = new InputHandler(this);
-		level=new Level("/levels/water_test_level.png");
-		player=new PlayerMP(level, 100,100, input,JOptionPane.showInputDialog(this,"Please enter a UserName"),null,-1);
+		level = new Level("/levels/water_test_level.png");
+		player = new PlayerMP(level, 100, 100, input, JOptionPane.showInputDialog(this, "Please enter a UserName"),
+				null, -1);
 		level.addEntity(player);
-		Packet00Login loginPacket=new Packet00Login(player.getUsername(),player.x,player.y);
-		if(socketServer!=null) {
-			socketServer.addConnection((PlayerMP)player,loginPacket);
+		if (!isAppelet) {
+			Packet00Login loginPacket = new Packet00Login(player.getUsername(), player.x, player.y);
+			if (socketServer != null) {
+				socketServer.addConnection((PlayerMP) player, loginPacket);
+			}
+			loginPacket.writeData(socketClient);
 		}
-//		socketClient.sendData("ping".getBytes());
-		loginPacket.writeData(socketClient);
 	}
 
 	public synchronized void start() {
 		running = true;
-		thread=new Thread(this,NAME+"_main");
-		thread.start();
-		if(JOptionPane.showConfirmDialog(this, "Do you want to run the server?")==0) {
-			socketServer=new GameServer(this);
-			socketServer.start();
-		}
 		
-		socketClient=new GameClient(this, "localhost");
-		socketClient.start();
+		thread = new Thread(this, NAME + "_main");
+		thread.start();
+		if (!isAppelet) {
+			if (JOptionPane.showConfirmDialog(this, "Do you want to run the server?") == 0) {
+				socketServer = new GameServer(this);
+				socketServer.start();
+			}
+
+			socketClient = new GameClient(this, "localhost");
+			socketClient.start();
+		}
 
 	}
 
@@ -138,15 +143,14 @@ public class Game extends Canvas implements Runnable {
 			}
 			if (System.currentTimeMillis() - lastTimer > 1000) {
 				lastTimer += 1000;
-				debug(DebugLevel.INFO,ticks + "Ticks" + frames + " frames");
+				debug(DebugLevel.INFO, ticks + "Ticks" + frames + " frames");
 				frames = 0;
 				ticks = 0;
 			}
 
 		}
 	}
-	
-	
+
 	public void tick() {
 		tickCount++;
 		level.tick();
@@ -158,62 +162,55 @@ public class Game extends Canvas implements Runnable {
 			createBufferStrategy(3);
 			return;
 		}
-		int xOffset=player.x-(screen.width/2);
-		int yOffset=player.y-(screen.height/2);
-		
+		int xOffset = player.x - (screen.width / 2);
+		int yOffset = player.y - (screen.height / 2);
+
 		level.renderTile(screen, xOffset, yOffset);
-		
-		for(int x=0;x<level.width;x++) {
-			int colour=Colours.get(-1, -1, -1, 000);
-			if(x%10==0&&x!=0) {
-				colour=Colours.get(-1, -1, -1, 500);
-			}
-		
-		}
-		Font.render("Hello", screen, 0, 0, Colours.get(-1, 250, 0, 200), 1);
+
 		level.renderEntities(screen);
-		
+
 		for (int y = 0; y < screen.height; y++) {
 			for (int x = 0; x < screen.width; x++) {
-			int colourCode=screen.pixels[x+y*screen.width];
-			if(colourCode<255)pixels[x+y*WIDTH]=colours[colourCode];
+				int colourCode = screen.pixels[x + y * screen.width];
+				if (colourCode < 255)
+					pixels[x + y * WIDTH] = colours[colourCode];
 			}
 		}
 
 		Graphics g = bs.getDrawGraphics();
-		g.drawRect(0, 0, getWidth(), getHeight());
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 		g.dispose();
 		bs.show();
 	}
+
 	public static long fact(int n) {
-		if(n<=1) {
+		if (n <= 1) {
 			return 1;
-		}else {
-			return n*fact(n-1);
+		} else {
+			return n * fact(n - 1);
 		}
 	}
-	
-	public void debug(DebugLevel level,String msg) {
-		switch(level) {
+
+	public void debug(DebugLevel level, String msg) {
+		switch (level) {
 		default:
 		case INFO:
-			if(debug) {
-				System.out.println("["+NAME+"]"+msg);
+			if (debug) {
+				System.out.println("[" + NAME + "]" + msg);
 			}
 			break;
 		case WARNING:
-			System.out.println("["+NAME+"][WARNING]"+msg);
+			System.out.println("[" + NAME + "][WARNING]" + msg);
 			break;
 		case SEVERE:
-			System.out.println("["+NAME+"][SEVERE]"+msg);
+			System.out.println("[" + NAME + "][SEVERE]" + msg);
 			this.stop();
 			break;
 		}
 	}
-	
-	public static enum DebugLevel{
-		INFO,WARNING,SEVERE;
+
+	public static enum DebugLevel {
+		INFO, WARNING, SEVERE;
 	}
-	
+
 }

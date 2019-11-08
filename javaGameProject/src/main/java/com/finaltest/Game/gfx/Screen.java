@@ -30,10 +30,6 @@ public class Screen {
 		this.yOffset = yOffset;
 	}
 
-	public void render(int xPos, int yPos, int tile, int colour) {
-		render(xPos, yPos, tile, colour, 0x00,1);
-	}
-
 	public void render(int xPos, int yPos, int tile, int colour, int mirrorDir, int scale) {
 		xPos -= xOffset;
 		yPos -= yOffset;

@@ -7,7 +7,8 @@ public class Font {
 		msg=msg.toUpperCase();
 		for (int i = 0; i < msg.length(); i++) {
 			int charIndex=chars.indexOf(msg.charAt(i));
-			if(charIndex>=0)screen.render(x+(i*8),y,charIndex+30*32, colour,0x00,scale);
+			if(charIndex>=0)
+				screen.render(x+(i*8),y,charIndex+30*32, colour,0x00,scale);
 		}
 	}
 }
