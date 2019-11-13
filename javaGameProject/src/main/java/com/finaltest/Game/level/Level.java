@@ -151,13 +151,13 @@ public class Level {
 		this.getEntities().remove(index);
 	}
 
-	private int getPlayerMPindex(String username) {
+	private synchronized int getPlayerMPindex(String username) {
 		int index = 0;
 		for (Entity e : getEntities()) {
 			if (e instanceof PlayerMP && ((PlayerMP) e).getUsername().equals(username)) {
 				break;
 			}
-			index++;
+			index+=1;
 		}
 		return index;
 	}
