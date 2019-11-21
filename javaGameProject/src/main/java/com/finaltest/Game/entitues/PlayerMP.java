@@ -14,6 +14,7 @@ public class PlayerMP extends Player{
 		super(level, x, y, input, username);
 		this.ipAddress=ipAddress;
 		this.port=port;
+		
 	}
 	public PlayerMP(Level level, int x, int y, String username,InetAddress ipAddress,int port) {
 		super(level, x, y, null, username);

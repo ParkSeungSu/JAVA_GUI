@@ -3,6 +3,7 @@ package com.finaltest.Game;
 import java.awt.Canvas;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
@@ -40,7 +41,6 @@ public class Game extends Canvas implements Runnable {
 	private int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 	private int[] colours = new int[6 * 6 * 6];
 
-	
 	private Screen screen;
 	public InputHandler input;
 	public WindowHandler windowHandler;
@@ -69,12 +69,11 @@ public class Game extends Canvas implements Runnable {
 
 		screen = new Screen(WIDTH, HEIGHT, new SpriteSheet("/sprite_sheet.png"));
 		input = new InputHandler(this);
-		level = new Level("/levels/water_test_level.png");
-		player = new PlayerMP(level, 100, 100, input, JOptionPane.showInputDialog(this, "Please enter a UserName"),
-				null, -1);
+		level = new Level("/levels/test_map.png");
+		player = new PlayerMP(level, 100, 100, input, JOptionPane.showInputDialog(this, "Please enter a UserName"), null, -1);
 		level.addEntity(player);
 		if (!isAppelet) {
-			Packet00Login loginPacket = new Packet00Login(player.getUsername(), player.x, player.y);
+			Packet00Login loginPacket = new Packet00Login(player.getUsername(), player.x, player.y, player.isAlive());
 			if (socketServer != null) {
 				socketServer.addConnection((PlayerMP) player, loginPacket);
 			}
@@ -84,7 +83,7 @@ public class Game extends Canvas implements Runnable {
 
 	public synchronized void start() {
 		running = true;
-		
+
 		thread = new Thread(this, NAME + "_main");
 		thread.start();
 		if (!isAppelet) {

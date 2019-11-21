@@ -12,6 +12,7 @@ public class Packet02Move extends Packet{
 	private boolean isMoving;
 	private int movingDir=1;
 	
+	
 	public Packet02Move(byte[] data) {
 		super(02);
 		String[] dataArray=readData(data).split(",");
@@ -21,6 +22,7 @@ public class Packet02Move extends Packet{
 		this.numState=Integer.parseInt(dataArray[3]);
 		this.isMoving=Integer.parseInt(dataArray[4])==1;
 		this.movingDir=Integer.parseInt(dataArray[5]);
+	
 	}
 
 	public Packet02Move(String username,int x,int y,int numState,boolean isMoving,int movingDir) {
@@ -31,6 +33,7 @@ public class Packet02Move extends Packet{
 		this.numState=numState;
 		this.isMoving=isMoving;
 		this.movingDir=movingDir;
+		
 	}
 	
 	
@@ -73,6 +76,7 @@ public class Packet02Move extends Packet{
 	public int getMovingDir() {
 		return movingDir;
 	}
+
 	
 
 }

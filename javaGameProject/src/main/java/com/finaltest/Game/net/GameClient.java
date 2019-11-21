@@ -13,6 +13,7 @@ import com.finaltest.Game.net.packets.Packet;
 import com.finaltest.Game.net.packets.Packet00Login;
 import com.finaltest.Game.net.packets.Packet01Disconnect;
 import com.finaltest.Game.net.packets.Packet02Move;
+import com.finaltest.Game.net.packets.Packet03Collision;
 import com.finaltest.Game.net.packets.Packet.PacketTypes;
 
 public class GameClient extends Thread {
@@ -68,7 +69,16 @@ public class GameClient extends Thread {
 		case MOVE:
 			packet = new Packet02Move(data);
 			handleMove((Packet02Move) packet);
+			break;
+		case COLLISION:
+			packet = new Packet03Collision(data);
+			handleCollision((Packet03Collision)packet);
 		}
+	}
+
+	private void handleCollision(Packet03Collision packet) {
+		this.game.level.setAlivePlayer(packet.getUsername(),packet.isAlive());
+		
 	}
 
 	public void sendData(byte[] data) {
@@ -86,6 +96,7 @@ public class GameClient extends Thread {
 		System.out.println(
 				"[" + address.getHostAddress() + ":" + port + "]" + packet.getUsername() + " has joined the game...");
 		PlayerMP player = new PlayerMP(game.level, packet.getX(), packet.getY(), packet.getUsername(), address, port);
+		player.setAlive(packet.isAlive());
 		game.level.addEntity(player);
 	}
 

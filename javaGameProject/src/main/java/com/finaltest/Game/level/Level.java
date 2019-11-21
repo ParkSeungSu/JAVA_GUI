@@ -9,6 +9,7 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import com.finaltest.Game.entitues.Entity;
+import com.finaltest.Game.entitues.Player;
 import com.finaltest.Game.entitues.PlayerMP;
 import com.finaltest.Game.gfx.Screen;
 import com.finaltest.Game.level.tiles.Tile;
@@ -126,6 +127,7 @@ public class Level {
 	public void renderEntities(Screen screen) {
 		for (Entity e : getEntities()) {
 			e.render(screen);
+			
 		}
 	}
 
@@ -157,7 +159,7 @@ public class Level {
 			if (e instanceof PlayerMP && ((PlayerMP) e).getUsername().equals(username)) {
 				break;
 			}
-			index+=1;
+			index += 1;
 		}
 		return index;
 	}
@@ -170,5 +172,13 @@ public class Level {
 		player.setNumState(numState);
 		player.setMovingDir(movingDir);
 		player.setMoving(isMoving);
+		
+	}
+
+	public synchronized void setAlivePlayer(String username, boolean alive) {
+		int index = this.getPlayerMPindex(username);
+		PlayerMP player = (PlayerMP) this.getEntities().get(index);
+		player.setAlive(alive);
+		
 	}
 }

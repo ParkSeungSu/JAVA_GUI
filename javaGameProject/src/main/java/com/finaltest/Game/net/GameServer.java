@@ -15,6 +15,7 @@ import com.finaltest.Game.net.packets.Packet;
 import com.finaltest.Game.net.packets.Packet00Login;
 import com.finaltest.Game.net.packets.Packet01Disconnect;
 import com.finaltest.Game.net.packets.Packet02Move;
+import com.finaltest.Game.net.packets.Packet03Collision;
 import com.finaltest.Game.net.packets.Packet.PacketTypes;
 
 public class GameServer extends Thread {
@@ -58,7 +59,8 @@ public class GameServer extends Thread {
 			System.out.println("[" + address.getHostAddress() + ":" + port + "]"
 					+ ((Packet00Login) packet).getUsername() + " has connected...");
 			PlayerMP player = new PlayerMP(game.level, 100, 100, ((Packet00Login) packet).getUsername(), address, port);
-			this.addConnection(player, (Packet00Login) packet);
+			player.setAlive(((Packet00Login)packet).isAlive());
+			this.addConnection(player,(Packet00Login)packet);
 			break;
 		case DISCONNECT:
 			packet = new Packet01Disconnect(data);
@@ -69,10 +71,23 @@ public class GameServer extends Thread {
 		case MOVE:
 			packet = new Packet02Move(data);
 			this.handleMove(((Packet02Move) packet));
+			break;
+		case COLLISION:
+			packet=new Packet03Collision(data);
+			this.handleCollision((Packet03Collision)packet);
 		}
 	}
 
-	private void handleMove(Packet02Move packet) {
+	private void handleCollision(Packet03Collision packet) {
+		if (getPlayerMP(packet.getUsername()) != null) {
+			int index = getPlayerMPindex(packet.getUsername());
+			PlayerMP player = this.connectedPlayers.get(index);
+			player.setAlive(packet.isAlive());
+		}
+		
+	}
+
+	private synchronized void handleMove(Packet02Move packet) {
 		if (getPlayerMP(packet.getUsername()) != null) {
 			int index = getPlayerMPindex(packet.getUsername());
 			PlayerMP player = this.connectedPlayers.get(index);
@@ -81,11 +96,12 @@ public class GameServer extends Thread {
 			player.setMoving(packet.isMoving());
 			player.setMovingDir(packet.getMovingDir());
 			player.setNumState(packet.getNumState());
+			
 			packet.writeData(this);
 		}
 	}
 
-	public void removeConnection(Packet01Disconnect packet) {
+	public synchronized void removeConnection(Packet01Disconnect packet) {
 		this.connectedPlayers.remove(getPlayerMPindex(packet.getUsername()));
 		packet.writeData(this);
 	}
@@ -110,7 +126,7 @@ public class GameServer extends Thread {
 		return null;
 	}
 
-	public void addConnection(PlayerMP player, Packet00Login packet) {
+	public synchronized void addConnection(PlayerMP player, Packet00Login packet) {
 		boolean alreadyConnected = false;
 		for (PlayerMP p : this.connectedPlayers) {
 			if (player.getUsername().equalsIgnoreCase(p.getUsername())) {
@@ -124,7 +140,7 @@ public class GameServer extends Thread {
 			} else {
 				// 현재 존재하고 있는 사람들에게 새로운 사람이 들어왔다고 알려준다.
 				sendData(packet.getData(), p.ipAddress, p.port);
-				packet = new Packet00Login(p.getUsername(), p.x, p.y);
+				packet = new Packet00Login(p.getUsername(), p.x, p.y,p.isAlive());
 				sendData(packet.getData(), player.ipAddress, player.port);
 			}
 		}
